@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AORI-ANIME — каталог аниме</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="header">
+  <a class="logo" href="./index.html">
+    <img src="./aori-avatar.gif" alt="AORI-ANIME">
+    <span>AORI-<b>ANIME</b></span>
+  </a>
+
+  <nav class="nav">
+    <a href="#catalog">Каталог</a>
+    <a href="#popular">Популярное</a>
+  </nav>
+
+  <label class="searchbox">
+    <span>⌕</span>
+    <input id="search" type="search" placeholder="Поиск аниме...">
+  </label>
+
+  <div class="header-social">
+    <a class="icon-btn discord" href="https://discord.gg/aori" target="_blank" rel="noopener" title="Discord">⌁</a>
+    <a class="icon-btn telegram" href="https://t.me/dscaori" target="_blank" rel="noopener" title="Telegram">➤</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">AORI-ANIME • ANIME WORLD</p>
+      <h1>Твой мир аниме<br><span>в синем свете.</span></h1>
+      <p class="lead">Открывай новые тайтлы, ищи любимое аниме и переходи на подробные страницы. Каталог загружается из API метаданных AniList.</p>
+      <div class="hero-actions">
+        <a class="primary" href="#catalog">Открыть каталог →</a>
+        <a class="social-btn discord" href="https://discord.gg/aori" target="_blank" rel="noopener"><strong>⌁</strong> Заходите на наш Discord сервер</a>
+        <a class="social-btn telegram" href="https://t.me/dscaori" target="_blank" rel="noopener"><strong>➤</strong> Наш Telegram</a>
+      </div>
+    </div>
+
+    <div class="avatar-area" aria-label="AORI-ANIME">
+      <div class="ring ring-a"></div>
+      <div class="ring ring-b"></div>
+      <div class="glow"></div>
+      <img class="hero-avatar" src="./aori-avatar.gif" alt="Аватар сервера AORI-ANIME">
+      <div class="avatar-caption">AORI<br><span>ANIME</span></div>
+    </div>
+  </section>
+
+  <section class="filters" id="popular">
+    <div class="filters-inner">
+      <button class="genre active" data-genre="">Все</button>
+      <button class="genre" data-genre="Action">Экшен</button>
+      <button class="genre" data-genre="Adventure">Приключения</button>
+      <button class="genre" data-genre="Comedy">Комедия</button>
+      <button class="genre" data-genre="Drama">Драма</button>
+      <button class="genre" data-genre="Fantasy">Фэнтези</button>
+      <button class="genre" data-genre="Romance">Романтика</button>
+      <button class="genre" data-genre="Sci-Fi">Sci‑Fi</button>
+    </div>
+  </section>
+
+  <section class="catalog-section" id="catalog">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">EXPLORE</p>
+        <h2 id="heading">Каталог аниме</h2>
+        <p id="status" class="substatus">Подключаем каталог...</p>
+      </div>
+      <img class="small-avatar" src="./aori-avatar.gif" alt="">
+    </div>
+
+    <div id="grid" class="grid">
+      <div class="loading">Загрузка аниме...</div>
+    </div>
+
+    <div class="more-wrap">
+      <button id="more" class="more">Загрузить ещё</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-logo"><img src="./aori-avatar.gif" alt=""> AORI-<b>ANIME</b></div>
+  <div class="footer-links">
+    <a class="discord" href="https://discord.gg/aori" target="_blank" rel="noopener">⌁ Discord сервер</a>
+    <a class="telegram" href="https://t.me/dscaori" target="_blank" rel="noopener">➤ Telegram</a>
+  </div>
+  <span>Каталог метаданных: AniList</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

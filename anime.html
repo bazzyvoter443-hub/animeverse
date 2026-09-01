@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AORI-ANIME</title><link rel="stylesheet" href="styles.css">
+<style>
+.detail{max-width:1160px;margin:auto;padding:38px 24px 70px}.back{color:#93bbff;text-decoration:none;font-weight:800}.detail-grid{display:grid;grid-template-columns:270px 1fr;gap:38px;margin-top:30px}.detail-grid img{width:100%;border-radius:18px;border:1px solid var(--line)}.detail-grid h1{font-size:clamp(36px,6vw,66px)}.desc{color:var(--muted);line-height:1.8;font-size:16px}.player{margin-top:38px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#081329}.player-head{padding:15px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.video{aspect-ratio:16/9;background:#020611}.video iframe{width:100%;height:100%;border:0}.novideo{height:100%;min-height:260px;display:grid;place-items:center;text-align:center;color:var(--muted);padding:30px}.community-watch{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.community-watch a{padding:12px 15px;border-radius:11px;color:white;text-decoration:none;font-weight:850;border:1px solid var(--line);background:#0b1730}@media(max-width:720px){.detail-grid{grid-template-columns:1fr}.detail-grid img{max-width:240px}.detail{padding:25px 18px}}
+</style></head>
+<body>
+<header class="header"><a class="logo" href="./index.html"><img src="./aori-avatar.gif" alt=""><span>AORI-<b>ANIME</b></span></a></header>
+<main class="detail"><a class="back" href="./index.html">← Вернуться в каталог</a><div id="detail" class="loading">Загрузка...</div></main>
+<script>
+const id=new URLSearchParams(location.search).get('id');
+const API='https://graphql.anilist.co';
+const query=`query($id:Int){Media(id:$id,type:ANIME){title{romaji english native}coverImage{large}description(asHtml:false)genres seasonYear episodes averageScore siteUrl trailer{id site}}}`;
+const esc=s=>{const d=document.createElement('div');d.textContent=s||'';return d.innerHTML};
+fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query,variables:{id:Number(id)}})})
+.then(r=>r.json()).then(j=>{
+ if(j.errors) throw Error(j.errors[0].message);
+ const a=j.data.Media,t=a.title.english||a.title.romaji||a.title.native;
+ const trailer=a.trailer&&a.trailer.site==='youtube'&&a.trailer.id;
+ const video=trailer?`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(a.trailer.id)}?rel=0" title="Официальный трейлер" allowfullscreen></iframe>`:`<div class="novideo"><div><h3>Официальный трейлер не найден</h3><p>Для этого тайтла API не вернул YouTube-трейлер.</p></div></div>`;
+ document.title=t+' — AORI-ANIME';
+ document.getElementById('detail').innerHTML=`<section class="detail-grid"><img src="${a.coverImage.large}" alt="${esc(t)}"><div><p class="eyebrow">AORI-ANIME • СТРАНИЦА ТАЙТЛА</p><h1>${esc(t)}</h1><p class="meta">${a.seasonYear||'—'} · ${a.episodes||'—'} эп. · ★ ${a.averageScore?(a.averageScore/10).toFixed(1):'—'}</p><div class="tags">${(a.genres||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div><p class="desc">${esc((a.description||'Описание отсутствует.').replace(/<[^>]*>/g,''))}</p></div></section><section class="player"><div class="player-head"><b>▶ Просмотр</b><span class="meta">Официальный трейлер</span></div><div class="video">${video}</div></section><div class="community-watch"><a class="discord" href="https://discord.gg/aori" target="_blank" rel="noopener">⌁ Заходите на наш Discord сервер</a><a class="telegram" href="https://t.me/dscaori" target="_blank" rel="noopener">➤ Наш Telegram</a></div>`;
+}).catch(e=>document.getElementById('detail').innerHTML=`<div class="loading">Ошибка: ${esc(e.message)}</div>`);
+</script></body></html>
