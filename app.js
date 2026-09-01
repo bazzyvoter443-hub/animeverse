@@ -1,0 +1,34 @@
+const API="https://graphql.anilist.co";
+let page=1, genre="", search="", busy=false, hasNext=true, loaded=0, timer;
+
+const q=`query($page:Int,$search:String,$genre:String){Page(page:$page,perPage:50){pageInfo{hasNextPage total}media(type:ANIME,search:$search,genre:$genre,sort:POPULARITY_DESC){id title{romaji english native}coverImage{large medium}averageScore episodes format seasonYear genres}}}`;
+
+const grid=document.querySelector("#grid"), more=document.querySelector("#more"), input=document.querySelector("#search"), counter=document.querySelector("#counter"), heading=document.querySelector("#heading");
+
+function esc(s=""){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function title(a){return a.title.english||a.title.romaji||a.title.native||"Без названия"}
+function card(a){
+ const t=title(a), score=a.averageScore?`${(a.averageScore/10).toFixed(1)}`:"—";
+ return `<article class="card" data-id="${a.id}"><div class="poster"><img loading="lazy" src="${a.coverImage.large||a.coverImage.medium||""}" alt="${esc(t)}"><b class="score">★ ${score}</b></div><div class="info"><div class="title">${esc(t)}</div><div class="meta">${a.seasonYear||"—"} · ${a.episodes?`${a.episodes} эп.`:(a.format||"Аниме")}</div><div class="tags">${a.genres.slice(0,3).map(g=>`<span class="tag">${esc(g)}</span>`).join("")}</div></div></article>`
+}
+async function load(reset=false){
+ if(busy||(!hasNext&&!reset))return;
+ busy=true;
+ if(reset){page=1;loaded=0;hasNext=true;grid.innerHTML='<div class="status">Загрузка каталога…</div>'}
+ more.disabled=true;more.textContent="Загрузка…";
+ try{
+  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({query:q,variables:{page,search:search||null,genre:genre||null}})});
+  const j=await r.json(); if(j.errors)throw Error(j.errors.map(e=>e.message).join(", "));
+  const d=j.data.Page;if(reset)grid.innerHTML="";
+  grid.insertAdjacentHTML("beforeend",d.media.map(card).join(""));
+  loaded+=d.media.length;hasNext=d.pageInfo.hasNextPage;counter.textContent=`Загружено: ${loaded} из ${d.pageInfo.total.toLocaleString("ru-RU")}`;
+  page++;more.style.display=hasNext?"inline-block":"none";
+ }catch(e){if(reset)grid.innerHTML=`<div class="status">Ошибка загрузки: ${esc(e.message)}</div>`}
+ finally{busy=false;more.disabled=false;more.textContent="Загрузить ещё"}
+}
+document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{document.querySelector(".filters .active").classList.remove("active");b.classList.add("active");genre=b.dataset.genre;search="";input.value="";heading.textContent=genre?b.textContent:"Все аниме";load(true)});
+input.oninput=e=>{clearTimeout(timer);timer=setTimeout(()=>{search=e.target.value.trim();genre="";document.querySelector(".filters .active").classList.remove("active");document.querySelector('[data-genre=""]').classList.add("active");heading.textContent=search?`Поиск: ${search}`:"Все аниме";load(true)},500)};
+more.onclick=()=>load();
+document.querySelector("#theme").onclick=()=>document.body.classList.toggle("light");
+grid.onclick=e=>{const c=e.target.closest(".card");if(c)location.href=`anime.html?id=${c.dataset.id}`};
+load(true);
