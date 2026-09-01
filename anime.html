@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AnimeVerse — Просмотр</title><link rel="stylesheet" href="styles.css">
+</head><body>
+<header><a class="logo" href="./">Anime<span>Verse</span></a></header>
+<main class="watch-layout">
+<a class="back" href="./">← Вернуться в каталог</a>
+<div id="detail" class="status">Загрузка страницы аниме…</div>
+</main>
+<script>
+const id=Number(new URLSearchParams(location.search).get("id")),API="https://graphql.anilist.co";
+const q=`query($id:Int){Media(id:$id,type:ANIME){id title{romaji english native}coverImage{large}description(asHtml:false)averageScore episodes genres seasonYear status format siteUrl trailer{id site thumbnail}externalLinks{site url type}}}`;
+const detail=document.querySelector("#detail");
+const esc=s=>{const d=document.createElement("div");d.textContent=s||"";return d.innerHTML};
+const clean=s=>(s||"").replace(/<[^>]*>/g,"");
+function title(a){return a.title.english||a.title.romaji||a.title.native||"Без названия"}
+function makeEpisodes(n){n=Math.min(Math.max(n||12,1),60);return Array.from({length:n},(_,i)=>`<button class="episode ${i===0?"active":""}" data-ep="${i+1}">${i+1}</button>`).join("")}
+fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({query:q,variables:{id}})})
+.then(r=>r.json()).then(j=>{if(j.errors)throw Error(j.errors[0].message);const a=j.data.Media,t=title(a);document.title=t+" — AnimeVerse";
+detail.innerHTML=`<section class="watch-hero"><img class="watch-poster" src="${a.coverImage.large}" alt="${esc(t)}"><div><h1 class="watch-title">${esc(t)}</h1><p class="meta">${a.seasonYear||"—"} · ${a.format||"—"} · ${a.episodes?a.episodes+" эп.":"—"} · ★ ${a.averageScore?(a.averageScore/10).toFixed(1):"—"}</p><div class="tags">${a.genres.map(g=>`<span class="tag">${esc(g)}</span>`).join("")}</div><p class="watch-desc">${esc(clean(a.description)||"Описание отсутствует.")}</p></div></section>
+<section class="player-shell"><video id="player" controls playsinline preload="metadata"></video><div id="empty" class="player-empty"><h2>Готово к просмотру</h2><p>Добавьте собственный или лицензированный видеофайл либо разрешённый прямой URL.</p></div><div class="source-panel"><div class="source-row"><input id="videoUrl" placeholder="https://example.com/video.mp4"><button class="btn primary" id="loadUrl">Загрузить URL</button><label class="btn">Выбрать файл<input id="videoFile" type="file" accept="video/*" hidden></label></div><p class="notice">Сайт не содержит видеопотоки AniList. Этот плеер предназначен для видео, которые вы имеете право размещать или воспроизводить.</p><div class="progress"><div id="progressBar"></div></div></div></section>
+<section class="watch-grid"><div class="panel"><h3>Серии</h3><div class="episode-grid" id="episodes">${makeEpisodes(a.episodes)}</div></div>
+<aside class="panel"><h3>Настройки просмотра</h3><div class="select-row"><label>Аудиодорожка<select id="dub"><option>Оригинал</option><option>Русская дорожка 1</option><option>Русская дорожка 2</option></select></label><label>Субтитры<select id="subs"><option>Без субтитров</option><option>Русские</option><option>English</option></select></label></div><p class="notice" style="margin-top:18px">Список дорожек — интерфейсная заготовка. Реальные дорожки появляются после подключения разрешённого видеоисточника.</p></aside></section>`;
+setup(a.id);
+}).catch(e=>detail.innerHTML=`<div class="status">Не удалось загрузить страницу: ${esc(e.message)}</div>`);
+
+function setup(mediaId){
+ const player=document.querySelector("#player"),empty=document.querySelector("#empty"),file=document.querySelector("#videoFile"),url=document.querySelector("#videoUrl"),loadUrl=document.querySelector("#loadUrl"),episodes=document.querySelector("#episodes"),bar=document.querySelector("#progressBar");
+ const key="animeverse-progress-"+mediaId;
+ const saved=JSON.parse(localStorage.getItem(key)||"{}");
+ function start(src){if(!src)return;player.src=src;player.style.display="block";empty.style.display="none";player.load();player.play().catch(()=>{});}
+ loadUrl.onclick=()=>start(url.value.trim());
+ file.onchange=e=>{const f=e.target.files[0];if(f)start(URL.createObjectURL(f));};
+ episodes.onclick=e=>{const b=e.target.closest(".episode");if(!b)return;episodes.querySelectorAll(".episode").forEach(x=>x.classList.remove("active"));b.classList.add("active");const state={...saved,episode:b.dataset.ep};localStorage.setItem(key,JSON.stringify(state));};
+ player.addEventListener("loadedmetadata",()=>{if(saved.time&&saved.src===player.currentSrc){player.currentTime=Math.min(saved.time,player.duration||saved.time)}});
+ player.addEventListener("timeupdate",()=>{const p=player.duration?player.currentTime/player.duration*100:0;bar.style.width=p+"%";localStorage.setItem(key,JSON.stringify({episode:episodes.querySelector(".episode.active")?.dataset.ep||"1",time:player.currentTime,src:player.currentSrc}));});
+}
+</script></body></html>

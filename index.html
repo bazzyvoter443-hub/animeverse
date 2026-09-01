@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AnimeVerse — Каталог</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <a class="logo" href="./">Anime<span>Verse</span></a>
+  <nav><a href="./">Каталог</a><a href="#catalog">Популярное</a></nav>
+  <input id="search" placeholder="Поиск аниме..." autocomplete="off">
+</header>
+
+<section class="hero">
+  <div><p class="eyebrow">ANIME CATALOG</p><h1>Смотри свой каталог</h1>
+  <p>Карточки и метаданные загружаются из AniList. Страница просмотра поддерживает собственные или лицензированные видеоисточники, серии, дорожки и субтитры.</p></div>
+</section>
+
+<section class="filters">
+<button class="active" data-genre="">Все</button>
+<button data-genre="Action">Экшен</button><button data-genre="Adventure">Приключения</button>
+<button data-genre="Comedy">Комедия</button><button data-genre="Drama">Драма</button>
+<button data-genre="Fantasy">Фэнтези</button><button data-genre="Romance">Романтика</button>
+<button data-genre="Sci-Fi">Sci‑Fi</button>
+</section>
+
+<main id="catalog">
+<div class="catalog-head"><div><h2 id="heading">Все аниме</h2><p id="counter">Загрузка...</p></div><button id="theme" title="Сменить тему">☾</button></div>
+<div id="grid" class="grid"><div class="status">Загрузка каталога…</div></div>
+<div class="more-wrap"><button id="more">Загрузить ещё</button></div>
+</main>
+
+<footer>AnimeVerse demo · Метаданные: AniList API · Для воспроизведения добавляйте только собственные или лицензированные источники.</footer>
+<script src="app.js"></script>
+</body></html>
